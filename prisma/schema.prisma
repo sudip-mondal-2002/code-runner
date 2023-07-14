@@ -20,7 +20,7 @@ enum Difficulty {
 }
 
 model Problem {
-  id          String     @id @default(cuid()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   tags        String[]
   name        String
   description String
@@ -30,16 +30,16 @@ model Problem {
 }
 
 model Solution {
-  id        String   @id @default(cuid()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   code      String
   language  Language
   problem   Problem  @relation(fields: [problemId], references: [id])
-  outputs   Output[]
   problemId String   @db.ObjectId
+  outputs   Output[]
 }
 
 model Output {
-  id         String   @id @default(cuid()) @map("_id") @db.ObjectId
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   solution   Solution @relation(fields: [solutionId], references: [id])
   testcase   TestCase @relation(fields: [testcaseId], references: [id])
   passed     Boolean
@@ -49,11 +49,11 @@ model Output {
 }
 
 model TestCase {
-  id        String   @id @default(cuid()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   input     String
   output    String
-  outputs   Output[]
   problemId String   @db.ObjectId
-  Problem   Problem  @relation(fields: [problemId], references: [id])
+  outputs   Output[]
+  problem   Problem  @relation(fields: [problemId], references: [id])
   example   Boolean  @default(false)
 }
