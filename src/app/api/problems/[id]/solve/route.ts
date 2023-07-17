@@ -1,9 +1,12 @@
-import {Problem} from "@prisma/client";
+import {Problem, Solution} from "@prisma/client";
 import {NextResponse} from "next/server";
-import {ProblemController} from "@/controllers/Problem";
+import {SubmitController} from "@/controllers/Submit";
 
-export const POST = async (_:Request, {params}: {
+export const POST = async (req:Request, {params}: {
   params: { [key: string]: string }
-}): Promise<NextResponse<Problem | null>> => {
-  return NextResponse.json(null)
+}): Promise<NextResponse<Solution | null>> => {
+    const submitController = new SubmitController();
+    const problemId = params["id"];
+    const {code, language} = await req.json();
+    return NextResponse.json(await submitController.submitSolution(code, language, problemId));
 }

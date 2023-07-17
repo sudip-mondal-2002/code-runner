@@ -2,25 +2,28 @@ import {Language, Solution, TestCase} from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
 import {PythonRunner} from "@/runners/PythonRunner";
-
 export abstract class Runner {
   readonly abstract timeout: number
   readonly abstract language: Language
 
-  abstract run(solution: Solution, testCase: TestCase): void
-  abstract compile(solution: Solution): void
+  protected abstract run(solution: Solution, testCase: TestCase): Promise<void>
+  protected abstract compile(solution: Solution): void
 
-  abstract getRunnableFileName(solution: Solution): string
+  protected abstract getRunnableFileName(solution: Solution): string
 
   getRawFileName(solution: Solution): string {
-    return solution.id + "." + this.language.toLowerCase();
+    return "Main." + this.language.toLowerCase();
   }
 
-  getOutputFileName(solution: Solution): string {
-    return solution.id;
+  getInputFileName(): string {
+    return "input.txt";
   }
-  getStoreLocation(): string {
-    return path.join(process.cwd(), this.language.toLowerCase())
+
+  getOutputFileName(): string {
+    return "output.txt";
+  }
+  getStoreLocation(solution: Solution): string {
+    return path.join(process.cwd(), this.language.toLowerCase(), solution.id);
   }
 
 
@@ -28,28 +31,48 @@ export abstract class Runner {
     if(this.language !== solution.language) {
         throw new Error("Language mismatch");
     }
+    if(!fs.existsSync(this.getStoreLocation(solution))) {
+        fs.mkdirSync(this.getStoreLocation(solution), {recursive: true});
+    }
     const fileName = this.getRawFileName(solution);
     fs.writeFileSync(
-      path.join(this.getStoreLocation(),fileName),
+      path.join(this.getStoreLocation(solution),fileName),
       solution.code);
     return fileName;
   }
-  execute(solution: Solution, testCase: TestCase): string {
-    this.dumpFile(solution);
-    this.compile(solution);
-    this.run(solution, testCase);
-    return fs.readFileSync(
-      this.getOutputFileName(solution)
-    ).toString('utf-8');
+
+  dumpIO(solution: Solution, testCase: TestCase): void {
+    if(!fs.existsSync(this.getStoreLocation(solution))) {
+      fs.mkdirSync(this.getStoreLocation(solution), {recursive: true});
+    }
+    const input = path.join(this.getStoreLocation(solution), this.getInputFileName());
+    const output = path.join(this.getStoreLocation(solution), this.getOutputFileName());
+    fs.writeFileSync(input, testCase.input);
+    fs.writeFileSync(output, "\n");
   }
 
-
-  static getRunner(language: Language): Runner{
-    switch (language){
-      case "PYTHON":
-        return new PythonRunner()
-      default:
-        throw new Error("Runner not built")
+  async execute(solution: Solution, testCase: TestCase): Promise<{
+    output: string,
+    runtime: number,
+    error: boolean
+  }> {
+    this.dumpFile(solution);
+    this.dumpIO(solution, testCase);
+    this.compile(solution);
+    const startTime = process.hrtime()
+    let error = false
+    try{
+      await this.run(solution, testCase);
+    } catch (e){
+      error = true
     }
+    const endTime = process.hrtime();
+
+    const runtime = Math.floor((endTime[0] - startTime[0]) * 1000 + (endTime[1] - startTime[1]) / 1000000);
+    return {
+      output: fs.readFileSync(path.join(this.getStoreLocation(solution), this.getOutputFileName())).toString('utf-8'),
+      runtime,
+      error
+    };
   }
 }

@@ -43,7 +43,7 @@ model Output {
   solution   Solution @relation(fields: [solutionId], references: [id])
   testcase   TestCase @relation(fields: [testcaseId], references: [id])
   passed     Boolean
-  runtime    BigInt
+  runtime    Int
   solutionId String   @db.ObjectId
   testcaseId String   @db.ObjectId
 }

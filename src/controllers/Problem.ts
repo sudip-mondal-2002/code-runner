@@ -1,7 +1,8 @@
 import {PrismaClient, Problem} from "@prisma/client";
+import {prismaClient} from "@/repository/prisma";
 
 export class ProblemController {
-    readonly prisma: PrismaClient = new PrismaClient();
+    readonly prisma: PrismaClient = prismaClient
 
     async getTags(): Promise<string[]> {
         return this.prisma.problem.findMany({
