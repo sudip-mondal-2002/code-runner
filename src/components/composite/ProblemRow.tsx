@@ -11,7 +11,7 @@ export const ProblemRow = (problem: Problem)=>{
     return <Tr>
         <Td width={"50%"}>{problem.name}</Td>
         <Td width={"15%"}>{problem.difficulty}</Td>
-        <Td isNumeric width={"10%"}>{problem._count.solutions}</Td>
+        <Td isNumeric width={"10%"}>{problem["solutions"].length}</Td>
         <Td width={"25%"}>
             <HStack>
                 <Button onClick={()=>router.push(`/${problem.id}/solutions`)}>View Solutions</Button>

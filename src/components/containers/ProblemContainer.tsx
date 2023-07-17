@@ -1,12 +1,29 @@
 "use client"
 import { useParams } from 'next/navigation';
 import {useProblemDetails} from "@/hooks/useProblemDetails";
+import {LoadingProblem} from "@/components/base/LoadingProblem";
+import {Stack, Box, HStack} from "@chakra-ui/react"
+import {ProblemDescription} from "@/components/composite/ProblemDescription";
 
-export const ProblemContainer = ({}) => {
+export const ProblemContainer = () => {
     const {problemId} = useParams()
     const {problem} = useProblemDetails(problemId)
     return <>
-        {problem?.name}
-        {problem?.description}
+        {problem ? <Stack padding={"20px"}>
+            <Box style={{
+                width: "100%",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderBottom: "1px solid #ccc",
+                boxShadow: "0 0 10px #ccc",
+            }}>
+                {problem.name}
+            </Box>
+            <HStack>
+                <ProblemDescription {...problem} />
+            </HStack>
+        </Stack>:<LoadingProblem/> }
     </>
 }

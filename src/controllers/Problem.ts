@@ -18,36 +18,32 @@ export class ProblemController {
     }
 
     async getProblems(filters: { tags?: string[] }): Promise<Problem[]> {
-        if (!filters.tags) {
-            return this.prisma.problem.findMany({
-                select: {
-                    id: true,
-                    name: true,
-                    description: true,
-                    difficulty: true,
-                    _count: {
-                        select: {
-                            solutions: {
-                                where: {
-                                    outputs: {
-                                        none: {
-                                            passed: false
-                                        }
-                                    }
-                                }
+        const query = {
+            include: {
+                testcases: {
+                    where: {
+                        example: true
+                    }
+                },
+                solutions: {
+                    where: {
+                        outputs: {
+                            none: {
+                                passed: false
                             }
                         }
                     }
                 }
-            });
+            }
         }
-        return this.prisma.problem.findMany({
-            where: {
+        if (filters.tags) {
+            query["where"] = {
                 tags: {
                     hasSome: filters.tags
                 }
             }
-        })
+        }
+        return this.prisma.problem.findMany(query)
     }
 
     async getProblem(id: string): Promise<Problem | null> {
