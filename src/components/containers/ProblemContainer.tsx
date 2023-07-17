@@ -4,6 +4,7 @@ import {useProblemDetails} from "@/hooks/useProblemDetails";
 import {LoadingProblem} from "@/components/base/LoadingProblem";
 import {Stack, Box, HStack} from "@chakra-ui/react"
 import {ProblemDescription} from "@/components/composite/ProblemDescription";
+import {CodeEditor} from "@/components/composite/CodeEditor";
 
 export const ProblemContainer = () => {
     const {problemId} = useParams()
@@ -23,6 +24,7 @@ export const ProblemContainer = () => {
             </Box>
             <HStack>
                 <ProblemDescription {...problem} />
+                <CodeEditor />
             </HStack>
         </Stack>:<LoadingProblem/> }
     </>

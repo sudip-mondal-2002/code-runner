@@ -17,6 +17,7 @@
     "@types/node": "20.4.2",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
+    "@uiw/react-textarea-code-editor": "^2.1.7",
     "axios": "^1.4.0",
     "childprocess": "^2.0.2",
     "eslint": "8.44.0",
