@@ -53,6 +53,7 @@ export class SubmitController {
                 break;
             }
         }
+        runner.deleteSolution(solution as Solution)
         return solution;
     }
 }
