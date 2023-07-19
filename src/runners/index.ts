@@ -2,12 +2,23 @@ import {Language, Solution, TestCase} from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
 import {ChildProcessWithoutNullStreams} from "child_process";
+import child_process from "child_process";
 
 export abstract class Runner {
     readonly abstract timeout: number
     readonly abstract language: Language
+    protected abstract getRunCommand(runFile: string, input: string, output: string)
 
-    protected abstract async run(solution: Solution, testCase: TestCase): Promise<void>
+    async run(solution: Solution): Promise<string>{
+        const runFile = `${this.getStoreLocation(solution)}/${this.getRunnableFileName(solution)}`;
+        const input = `${this.getStoreLocation(solution)}/${this.getInputFileName()}`;
+        const output = `${this.getStoreLocation(solution)}/${this.getOutputFileName()}`;
+
+        const child = child_process.spawn(this.getRunCommand(runFile, input, output), [], {shell: true});
+        return this.waitForRunCompletion(child, output, ()=>{
+            this.deleteSolution(solution)
+        })
+    }
 
     protected abstract compile(solution: Solution): void
 
@@ -60,25 +71,25 @@ export abstract class Runner {
         fs.writeFileSync(output, "\n");
     }
 
-    async waitForRunCompletion(child: ChildProcessWithoutNullStreams): Promise<void> {
-        return new Promise((resolve, reject) => {
+    async waitForRunCompletion(child: ChildProcessWithoutNullStreams,outputLocation, onClose): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
             let hasExited = false;
             const timeout = setTimeout(() => {
                 if (!hasExited) {
-                    child.kill();
-                    child.disconnect()
-                    reject(new Error("Process execution timed out"));
+                    child.kill("SIGKILL")
                 }
             }, this.timeout);
 
             child.on("exit", async (code, signal) => {
                 hasExited = true;
                 clearTimeout(timeout);
-                if (code === 0) {
-                    resolve();
+                if (signal !== "SIGKILL") {
+                    const outputValue = fs.readFileSync(outputLocation).toString('utf-8')
+                    resolve(outputValue);
                 } else {
                     reject(new Error(`Process exited with code ${code}, signal ${signal}`));
                 }
+                child.on("close", onClose)
             });
 
             child.on("error", (error) => {
@@ -86,7 +97,7 @@ export abstract class Runner {
                 clearTimeout(timeout);
                 reject(error);
             });
-        }) as Promise<void>;
+        });
     }
 
     async execute(solution: Solution, testCase: TestCase): Promise<{
@@ -99,8 +110,9 @@ export abstract class Runner {
         this.compile(solution);
         const startTime = process.hrtime()
         let error = false
+        let output = ""
         try {
-            await this.run(solution, testCase);
+            output = await this.run(solution)
         } catch (e) {
             error = true
         }
@@ -109,7 +121,7 @@ export abstract class Runner {
         const runtime = Math.floor((endTime[0] - startTime[0]) * 1000 + (endTime[1] - startTime[1]) / 1000000);
 
         return {
-            output: fs.readFileSync(path.join(this.getStoreLocation(solution), this.getOutputFileName())).toString('utf-8'),
+            output,
             runtime,
             error
         };
