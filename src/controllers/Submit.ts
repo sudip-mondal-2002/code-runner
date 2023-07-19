@@ -43,7 +43,7 @@ export class SubmitController {
                 if(!error){
                     error = {
                         errorType: "WA",
-                        message: (testCase as TestCase).example? `Expected output = ${testCase.output}` : "Wrong answer"
+                        message: (testCase as TestCase).example? `Input ${testCase.input} :: Expected output = ${testCase.output}` : "Wrong answer"
                     }
                 }
             }

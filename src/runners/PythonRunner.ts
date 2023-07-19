@@ -11,10 +11,10 @@ export class PythonRunner extends Runner {
     }
 
     getRunnableFileName(solution: Solution): string {
-        return this.getRawFileName(solution);
+        return this.getRawFileName();
     }
 
-    protected getRunCommand(runFile: string, input: string, output: string) {
-        return `python3 ${runFile} < ${input} > ${output}`
+    protected getRunCommand(runFile: string) {
+        return `python3 ${runFile}`
     }
 }

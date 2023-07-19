@@ -8,14 +8,14 @@ export class CppRunner extends Runner{
     readonly timeout: number = 1000;
 
     protected compile(solution: Solution): void {
-        child_process.execSync(`g++ ${path.join(this.getStoreLocation(solution), this.getRawFileName(solution))} -o ${path.join(this.getStoreLocation(solution),this.getRunnableFileName(solution))}`)
+        child_process.execSync(`g++ ${path.join(this.getStoreLocation(solution), this.getRawFileName())} -o ${path.join(this.getStoreLocation(solution),this.getRunnableFileName(solution))}`)
     }
 
     protected getRunnableFileName(solution: Solution): string {
         return "run.exe";
     }
 
-    protected getRunCommand(runFile: string, input: string, output: string) {
-        return `${runFile} < ${input} > ${output}`
+    protected getRunCommand(runFile: string) {
+        return `${runFile}`
     }
 }

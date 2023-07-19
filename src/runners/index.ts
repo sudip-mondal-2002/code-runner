@@ -5,20 +5,25 @@ import child_process, {ChildProcessWithoutNullStreams} from "child_process";
 import {TimeLimitExceededError} from "@/errors/RunnerErrors/TimeLimitExceededError";
 import {RunTimeError} from "@/errors/RunnerErrors/RunTimeError";
 import {RunnerError, SerializedRunnerError} from "@/errors/RunnerErrors";
+import {CompileError} from "@/errors/RunnerErrors/CompileError";
 
 export abstract class Runner {
     readonly abstract timeout: number
     readonly abstract language: Language
 
-    protected abstract getRunCommand(runFile: string, input: string, output: string)
+    protected abstract getRunCommand(runFile: string)
 
-    async run(solution: Solution): Promise<string> {
+    async run(solution: Solution, testCase: TestCase): Promise<string> {
         const runFile = `${this.getStoreLocation(solution)}/${this.getRunnableFileName(solution)}`;
-        const input = `${this.getStoreLocation(solution)}/${this.getInputFileName()}`;
-        const output = `${this.getStoreLocation(solution)}/${this.getOutputFileName()}`;
+        const child = child_process.spawn(this.getRunCommand(runFile), [], {
+            shell: true
+        });
 
-        const child = child_process.spawn(this.getRunCommand(runFile, input, output), [], {shell: true});
-        return this.waitForRunCompletion(child, output, () => {
+        child.stdin.setDefaultEncoding('utf-8')
+        child.stdin.write(testCase.input + "\n")
+
+
+        return this.waitForRunCompletion(child, () => {
             this.deleteSolution(solution)
         })
     }
@@ -27,16 +32,8 @@ export abstract class Runner {
 
     protected abstract getRunnableFileName(solution: Solution): string
 
-    getRawFileName(solution: Solution): string {
+    getRawFileName(): string {
         return "Main." + this.language.toLowerCase();
-    }
-
-    getInputFileName(): string {
-        return "input.txt";
-    }
-
-    getOutputFileName(): string {
-        return "output.txt";
     }
 
     getStoreLocation(solution: Solution): string {
@@ -57,24 +54,14 @@ export abstract class Runner {
         if (!fs.existsSync(this.getStoreLocation(solution))) {
             fs.mkdirSync(this.getStoreLocation(solution), {recursive: true});
         }
-        const fileName = this.getRawFileName(solution);
+        const fileName = this.getRawFileName();
         fs.writeFileSync(
             path.join(this.getStoreLocation(solution), fileName),
             solution.code);
         return fileName;
     }
 
-    dumpIO(solution: Solution, testCase: TestCase): void {
-        if (!fs.existsSync(this.getStoreLocation(solution))) {
-            fs.mkdirSync(this.getStoreLocation(solution), {recursive: true});
-        }
-        const input = path.join(this.getStoreLocation(solution), this.getInputFileName());
-        const output = path.join(this.getStoreLocation(solution), this.getOutputFileName());
-        fs.writeFileSync(input, testCase.input);
-        fs.writeFileSync(output, "\n");
-    }
-
-    async waitForRunCompletion(child: ChildProcessWithoutNullStreams, outputLocation, onClose): Promise<string> {
+    async waitForRunCompletion(child: ChildProcessWithoutNullStreams, onClose): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             let hasExited = false;
             let isTLE = false;
@@ -89,7 +76,7 @@ export abstract class Runner {
                 hasExited = true;
                 clearTimeout(timeout);
                 if (!isTLE && code === 0) {
-                    const outputValue = fs.readFileSync(outputLocation).toString('utf-8')
+                    const outputValue = child.stdout.read()?.toString('utf-8') || ""
                     resolve(outputValue);
                 } else if (isTLE) {
                     reject(new TimeLimitExceededError());
@@ -113,13 +100,24 @@ export abstract class Runner {
         error?: SerializedRunnerError
     }> {
         this.dumpFile(solution);
-        this.dumpIO(solution, testCase);
-        this.compile(solution);
-        const startTime = process.hrtime()
         let error: RunnerError | null = null
         let output = ""
         try {
-            output = await this.run(solution)
+            this.compile(solution);
+        } catch (e){
+            error = new CompileError()
+        }
+        if (error){
+            return {
+                output,
+                runtime: 0,
+                error: error.toJSON()
+            }
+        }
+        const startTime = process.hrtime()
+
+        try {
+            output = await this.run(solution, testCase)
         } catch (e: RunnerError) {
             error = e
         }

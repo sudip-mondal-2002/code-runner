@@ -14,7 +14,6 @@ export const ProblemRow = (problem: Problem)=>{
         <Td isNumeric width={"10%"}>{problem["solutions"].length}</Td>
         <Td width={"25%"}>
             <HStack>
-                <Button onClick={()=>router.push(`/${problem.id}/solutions`)}>View Solutions</Button>
                 <Button onClick={()=>router.push(`/${problem.id}`)}>Try in Editor</Button>
             </HStack>
         </Td>
