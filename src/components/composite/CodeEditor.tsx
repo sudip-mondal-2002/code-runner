@@ -4,6 +4,7 @@ import {Button, HStack, Select, Stack} from "@chakra-ui/react";
 import {Language} from "@prisma/client";
 import {useParams} from "next/navigation";
 import {useSubmission} from "@/hooks/useSubmission";
+import {ResultModal} from "@/components/composite/ResultModal";
 
 const SUPPORTED_LANGUAGES = Object.keys(Language).map((key) => key.toLowerCase());
 
@@ -11,7 +12,7 @@ export const CodeEditor = () => {
     const {problemId} = useParams()
     const [code, setCode] = React.useState("");
     const [codeLanguage, setCodeLanguage] = React.useState<string>(SUPPORTED_LANGUAGES[0]);
-    const {submitCode} = useSubmission(problemId)
+    const {submitCode, submissionModal} = useSubmission(problemId)
     return (<Stack style={{
             width: "50%",
         }}>
@@ -42,6 +43,7 @@ export const CodeEditor = () => {
                     overflowY: "scroll"
                 }}
             />
+            {submissionModal}
         </Stack>
     );
 }
