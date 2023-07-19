@@ -19,7 +19,7 @@ export class ProblemController {
     }
 
     async getProblems(filters: { tags?: string[] }): Promise<Problem[]> {
-        const query = {
+        const query:any = {
             include: {
                 testcases: {
                     where: {
@@ -38,7 +38,7 @@ export class ProblemController {
             }
         }
         if (filters.tags) {
-            query["where"] = {
+            query.where = {
                 tags: {
                     hasSome: filters.tags
                 }

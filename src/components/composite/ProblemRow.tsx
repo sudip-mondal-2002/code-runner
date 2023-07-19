@@ -1,4 +1,4 @@
-import {Problem} from "@prisma/client";
+import {Problem, Solution} from "@prisma/client";
 import {
     Tr,
     Td,
@@ -6,12 +6,12 @@ import {
     HStack
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-export const ProblemRow = (problem: Problem)=>{
+export const ProblemRow = (problem: Problem & {solutions: Solution[]})=>{
     const router = useRouter()
     return <Tr>
         <Td width={"50%"}>{problem.name}</Td>
         <Td width={"15%"}>{problem.difficulty}</Td>
-        <Td isNumeric width={"10%"}>{problem["solutions"].length}</Td>
+        <Td isNumeric width={"10%"}>{problem.solutions.length}</Td>
         <Td width={"25%"}>
             <HStack>
                 <Button onClick={()=>router.push(`/${problem.id}`)}>Try in Editor</Button>

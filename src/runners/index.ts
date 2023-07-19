@@ -11,7 +11,7 @@ export abstract class Runner {
     readonly abstract timeout: number
     readonly abstract language: Language
 
-    protected abstract getRunCommand(runFile: string)
+    protected abstract getRunCommand(runFile: string): string
 
     async run(solution: Solution, testCase: TestCase): Promise<string> {
         const runFile = `${this.getStoreLocation(solution)}/${this.getRunnableFileName(solution)}`;
@@ -61,7 +61,7 @@ export abstract class Runner {
         return fileName;
     }
 
-    async waitForRunCompletion(child: ChildProcessWithoutNullStreams, onClose): Promise<string> {
+    async waitForRunCompletion(child: ChildProcessWithoutNullStreams, onClose: ()=>void): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             let hasExited = false;
             let isTLE = false;
@@ -118,8 +118,8 @@ export abstract class Runner {
 
         try {
             output = await this.run(solution, testCase)
-        } catch (e: RunnerError) {
-            error = e
+        } catch (e) {
+            error = e as RunnerError
         }
         const endTime = process.hrtime();
 

@@ -16,8 +16,6 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@prisma/client": "^5.0.0",
-    "@types/react": "18.2.15",
-    "@types/react-dom": "18.2.7",
     "@uiw/react-textarea-code-editor": "^2.1.7",
     "axios": "^1.4.0",
     "childprocess": "^2.0.2",
@@ -28,10 +26,12 @@
     "next": "13.4.9",
     "prisma": "^5.0.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "typescript": "5.1.6"
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.4.2"
+    "@types/node": "^20.4.2",
+    "@types/react": "18.2.15",
+    "@types/react-dom": "18.2.7",
+    "typescript": "5.1.6"
   }
 }

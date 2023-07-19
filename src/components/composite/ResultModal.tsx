@@ -6,13 +6,13 @@ export const ResultModal = (
         isLoading, solution, onClose
     }: {
         isLoading?: boolean,
-        solution?: Solution,
+        solution?: Solution & {outputs: Output[]},
         onClose: ()=>void
     }) => {
     const [failedOutput, setFailedOutput] = React.useState<Output>()
     React.useEffect(()=>{
         if(!solution) return
-        setFailedOutput(solution["outputs"].find((output:Output)=>!output.passed))
+        setFailedOutput(solution.outputs.find((output:Output)=>!output.passed))
     }, [solution])
     return <Box
         style={{

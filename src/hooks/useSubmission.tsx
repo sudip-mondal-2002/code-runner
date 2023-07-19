@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import {ResultModal} from "@/components/composite/ResultModal";
-import {Solution} from "@prisma/client";
+import {Solution, Output} from "@prisma/client";
 
 export function useSubmission(problemId: string){
     const SOLUTION_API_URL = `/api/problems/${problemId}/solve`
@@ -15,7 +15,7 @@ export function useSubmission(problemId: string){
             code,
             language: language.toUpperCase()
         })
-        setSubmissionModal(<ResultModal solution={result.data as Solution} onClose={handleModalClose}/> )
+        setSubmissionModal(<ResultModal solution={result.data as Solution & {outputs: Output[]}} onClose={handleModalClose}/> )
     }
     return {submitCode, submissionModal}
 }

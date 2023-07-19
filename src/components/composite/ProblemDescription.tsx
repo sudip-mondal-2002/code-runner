@@ -37,7 +37,7 @@ const InputOutputExample = ({index, input, output}: {
     </Table>
 }
 
-export const ProblemDescription = (problem: Problem) => {
+export const ProblemDescription = (problem: Problem & {testcases: TestCase[]}) => {
     return <Stack style={{
         border: "1px solid #ccc",
         width: "50%",
@@ -51,7 +51,7 @@ export const ProblemDescription = (problem: Problem) => {
             marginTop: "20px"
         }}>Example Test Cases</Text>
         {
-            problem["testcases"].map((testcase: TestCase, index: number) => {
+            problem.testcases.map((testcase: TestCase, index: number) => {
                 return <InputOutputExample
                     key={testcase.id}
                     index={index}

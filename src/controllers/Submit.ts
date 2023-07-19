@@ -37,7 +37,7 @@ export class SubmitController {
                 outputs: true
             }
         })
-        for (const testCase of await solution.problem["testcases"]) {
+        for (const testCase of solution.problem.testcases) {
             let {output, runtime, error} = await runner.execute(solution as Solution, testCase);
             if(!this.checkOutput(output, testCase.output)){
                 if(!error){
@@ -49,7 +49,7 @@ export class SubmitController {
             }
             const result = await this.prisma.output.create({
                 data: {
-                    solutionId: solution["id"],
+                    solutionId: solution.id,
                     testcaseId: testCase.id,
                     passed: !error,
                     runtime: runtime,
@@ -57,7 +57,7 @@ export class SubmitController {
                     errorMessage: error?.message
                 }
             })
-            solution.outputs["push"](result);
+            solution.outputs.push(result);
             if(error) {
                 break;
             }
