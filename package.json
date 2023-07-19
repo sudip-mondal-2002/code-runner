@@ -6,7 +6,6 @@
     "dev": "next dev",
     "prebuild": "npm run generate",
     "build": "next build",
-    "prestart": "prisma db push",
     "start": "next start",
     "lint": "next lint",
     "generate": "prisma generate"

@@ -1,8 +1,0 @@
-version: "3"
-services:
-  node-app:
-    image: sudipmondal2002/code-runner:1.0.0
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: mongodb+srv://sudip:1234@cluster0.7kjv2.mongodb.net/test?retryWrites=true&w=majority
