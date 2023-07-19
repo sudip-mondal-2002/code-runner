@@ -1,10 +1,10 @@
 import {Runner} from "@/runners";
-import {Solution, TestCase} from "@prisma/client";
+import {Language, Solution, TestCase} from "@prisma/client";
 import * as child_process from "child_process";
 
 export class PythonRunner extends Runner {
     readonly timeout = 10000;
-    readonly language = "PYTHON";
+    readonly language = Language.PYTHON;
 
     compile(solution: Solution): void {
         return;

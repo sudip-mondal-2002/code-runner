@@ -1,10 +1,10 @@
 import {Runner} from "@/runners/index";
-import {Solution} from "@prisma/client";
+import {Language, Solution} from "@prisma/client";
 import * as child_process from "child_process";
 import path from "path";
 
 export class CppRunner extends Runner{
-    readonly language = "CPP";
+    readonly language = Language.CPP;
     readonly timeout: number = 1000;
 
     protected compile(solution: Solution): void {

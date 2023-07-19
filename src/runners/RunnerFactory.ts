@@ -6,9 +6,9 @@ import {CppRunner} from "@/runners/CppRunner";
 export class RunnerFactory {
     static getRunner(language: Language): Runner{
         switch (language){
-            case "PYTHON":
+            case Language.PYTHON:
                 return new PythonRunner()
-            case "CPP":
+            case Language.CPP:
                 return new CppRunner()
             default:
                 throw new Error("Runner not built")
