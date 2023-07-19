@@ -1,21 +1,24 @@
 import {Language, Solution, TestCase} from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
-import {ChildProcessWithoutNullStreams} from "child_process";
-import child_process from "child_process";
+import child_process, {ChildProcessWithoutNullStreams} from "child_process";
+import {TimeLimitExceededError} from "@/errors/RunnerErrors/TimeLimitExceededError";
+import {RunTimeError} from "@/errors/RunnerErrors/RunTimeError";
+import {RunnerError, SerializedRunnerError} from "@/errors/RunnerErrors";
 
 export abstract class Runner {
     readonly abstract timeout: number
     readonly abstract language: Language
+
     protected abstract getRunCommand(runFile: string, input: string, output: string)
 
-    async run(solution: Solution): Promise<string>{
+    async run(solution: Solution): Promise<string> {
         const runFile = `${this.getStoreLocation(solution)}/${this.getRunnableFileName(solution)}`;
         const input = `${this.getStoreLocation(solution)}/${this.getInputFileName()}`;
         const output = `${this.getStoreLocation(solution)}/${this.getOutputFileName()}`;
 
         const child = child_process.spawn(this.getRunCommand(runFile, input, output), [], {shell: true});
-        return this.waitForRunCompletion(child, output, ()=>{
+        return this.waitForRunCompletion(child, output, () => {
             this.deleteSolution(solution)
         })
     }
@@ -71,23 +74,27 @@ export abstract class Runner {
         fs.writeFileSync(output, "\n");
     }
 
-    async waitForRunCompletion(child: ChildProcessWithoutNullStreams,outputLocation, onClose): Promise<string> {
+    async waitForRunCompletion(child: ChildProcessWithoutNullStreams, outputLocation, onClose): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             let hasExited = false;
+            let isTLE = false;
             const timeout = setTimeout(() => {
+                isTLE = true
                 if (!hasExited) {
                     child.kill("SIGKILL")
                 }
             }, this.timeout);
 
-            child.on("exit", async (code, signal) => {
+            child.on("exit", async (code) => {
                 hasExited = true;
                 clearTimeout(timeout);
-                if (signal !== "SIGKILL") {
+                if (!isTLE && code === 0) {
                     const outputValue = fs.readFileSync(outputLocation).toString('utf-8')
                     resolve(outputValue);
+                } else if (isTLE) {
+                    reject(new TimeLimitExceededError());
                 } else {
-                    reject(new Error(`Process exited with code ${code}, signal ${signal}`));
+                    reject(new RunTimeError());
                 }
                 child.on("close", onClose)
             });
@@ -95,7 +102,7 @@ export abstract class Runner {
             child.on("error", (error) => {
                 hasExited = true;
                 clearTimeout(timeout);
-                reject(error);
+                reject(new RunTimeError(error.message));
             });
         });
     }
@@ -103,18 +110,18 @@ export abstract class Runner {
     async execute(solution: Solution, testCase: TestCase): Promise<{
         output: string,
         runtime: number,
-        error: boolean
+        error?: SerializedRunnerError
     }> {
         this.dumpFile(solution);
         this.dumpIO(solution, testCase);
         this.compile(solution);
         const startTime = process.hrtime()
-        let error = false
+        let error: RunnerError | null = null
         let output = ""
         try {
             output = await this.run(solution)
-        } catch (e) {
-            error = true
+        } catch (e: RunnerError) {
+            error = e
         }
         const endTime = process.hrtime();
 
@@ -123,7 +130,7 @@ export abstract class Runner {
         return {
             output,
             runtime,
-            error
+            error: error?.toJSON()
         };
     }
 }

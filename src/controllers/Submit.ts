@@ -38,18 +38,27 @@ export class SubmitController {
             }
         })
         for (const testCase of await solution.problem["testcases"]) {
-            const {output, runtime, error} = await runner.execute(solution as Solution, testCase);
-            const isCorrect =!error && this.checkOutput(output, testCase.output);
+            let {output, runtime, error} = await runner.execute(solution as Solution, testCase);
+            if(!this.checkOutput(output, testCase.output)){
+                if(!error){
+                    error = {
+                        errorType: "WA",
+                        message: (testCase as TestCase).example? `Expected output = ${testCase.output}` : "Wrong answer"
+                    }
+                }
+            }
             const result = await this.prisma.output.create({
                 data: {
                     solutionId: solution["id"],
                     testcaseId: testCase.id,
-                    passed: isCorrect,
-                    runtime: runtime
+                    passed: !error,
+                    runtime: runtime,
+                    error: error?.errorType,
+                    errorMessage: error?.message
                 }
             })
             solution.outputs["push"](result);
-            if(!isCorrect) {
+            if(error) {
                 break;
             }
         }

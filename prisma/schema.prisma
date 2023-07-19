@@ -38,13 +38,15 @@ model Solution {
 }
 
 model Output {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  solution   Solution @relation(fields: [solutionId], references: [id])
-  testcase   TestCase @relation(fields: [testcaseId], references: [id])
-  passed     Boolean
-  runtime    Int
-  solutionId String   @db.ObjectId
-  testcaseId String   @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  solution     Solution @relation(fields: [solutionId], references: [id])
+  testcase     TestCase @relation(fields: [testcaseId], references: [id])
+  passed       Boolean
+  error        String?
+  errorMessage String?
+  runtime      Int
+  solutionId   String   @db.ObjectId
+  testcaseId   String   @db.ObjectId
 }
 
 model TestCase {
