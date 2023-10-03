@@ -11,6 +11,7 @@ enum Language {
   PYTHON
   CPP
   C
+  JAVA
 }
 
 enum Difficulty {

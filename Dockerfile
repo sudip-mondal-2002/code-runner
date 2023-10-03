@@ -5,6 +5,7 @@ WORKDIR /app
 RUN apk add --update --no-cache g++
 RUN apk add --update --no-cache python3
 RUN apk add --update --no-cache gcc
+RUN apk add --update --no-cache openjdk17
 
 COPY package.json .
 COPY package-lock.json .
