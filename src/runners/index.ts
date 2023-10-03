@@ -41,6 +41,7 @@ export abstract class Runner {
     }
 
     deleteSolution(solution: Solution): void {
+        return
         if (fs.existsSync(this.getStoreLocation(solution))) {
             fs.rmSync(this.getStoreLocation(solution), {recursive: true});
         }
@@ -81,7 +82,7 @@ export abstract class Runner {
                 } else if (isTLE) {
                     reject(new TimeLimitExceededError());
                 } else {
-                    reject(new RunTimeError());
+                    reject(new RunTimeError(child.stderr.read()?.toString('utf-8') || undefined));
                 }
                 child.on("close", onClose)
             });

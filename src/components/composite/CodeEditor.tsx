@@ -1,5 +1,5 @@
 import Editor from '@uiw/react-textarea-code-editor';
-import React from "react";
+import React, {useEffect} from "react";
 import {Button, HStack, Select, Stack} from "@chakra-ui/react";
 import {Language} from "@prisma/client";
 import {useParams} from "next/navigation";
@@ -13,6 +13,13 @@ export const CodeEditor = () => {
     const [code, setCode] = React.useState("");
     const [codeLanguage, setCodeLanguage] = React.useState<string>(SUPPORTED_LANGUAGES[0]);
     const {submitCode, submissionModal} = useSubmission(problemId)
+    useEffect(() => {
+        if (codeLanguage === "java") {
+            if (!code.includes("public class Main") && !code.includes("main method should be part of a public class named Main")) {
+                setCode(`/* The main method should be part of a public class named Main */`)
+            }
+        }
+    }, [codeLanguage]);
     return (<Stack style={{
             width: "50%",
         }}>
