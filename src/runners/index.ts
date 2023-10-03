@@ -124,7 +124,6 @@ export abstract class Runner {
         const endTime = process.hrtime();
 
         const runtime = Math.floor((endTime[0] - startTime[0]) * 1000 + (endTime[1] - startTime[1]) / 1000000);
-
         return {
             output,
             runtime,
