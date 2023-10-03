@@ -10,6 +10,7 @@ datasource db {
 enum Language {
   PYTHON
   CPP
+  C
 }
 
 enum Difficulty {
