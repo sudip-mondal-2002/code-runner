@@ -20,6 +20,7 @@ Then, navigate to the project directory in your terminal and run:
 
 ```sh
 $ npm install
+$ npm run generate
 ```
 
 
