@@ -12,7 +12,7 @@ export const CodeEditor = () => {
     const {problemId} = useParams()
     const [code, setCode] = React.useState("");
     const [codeLanguage, setCodeLanguage] = React.useState<string>(SUPPORTED_LANGUAGES[0]);
-    const {submitCode, submissionModal} = useSubmission(problemId)
+    const {submitCode, submissionModal} = useSubmission(problemId as string)
     useEffect(() => {
         if (codeLanguage === "java") {
             if (!code.includes("public class Main") && !code.includes("main method should be part of a public class named Main")) {

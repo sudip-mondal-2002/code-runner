@@ -8,14 +8,23 @@ import {
     Td,
     TableCaption,
     TableContainer,
+    Heading,
+    Button
 } from '@chakra-ui/react'
 import {useProblems} from "@/hooks/useProblems";
 import {ProblemRow} from "@/components/composite/ProblemRow";
 import {LoadingTable} from "@/components/base/LoadingTable";
+import { color } from 'framer-motion';
+import Link from 'next/link';
 
 export const ProblemList = () => {
     const {problemList} = useProblems()
-    return <TableContainer style={{
+    return <>
+    <Heading style={{padding:"20px",backgroundColor:"black", color:"yellow"}}>
+        Code Jet
+        <Link href={"/playground"}> <Button style={{backgroundColor:"greenyellow", margin:"10px"}}>PlayGround</Button></Link>
+    </Heading>
+    <TableContainer style={{
         padding: "20px"
     }} >
         { problemList? <Table variant='simple'>
@@ -33,4 +42,5 @@ export const ProblemList = () => {
             </Tbody>
         </Table>  : <LoadingTable/> }
     </TableContainer>
+    </>
 }
