@@ -15,6 +15,7 @@ import { Language } from "@prisma/client";
 import { useParams } from "next/navigation";
 import { useSubmission } from "@/hooks/useSubmission";
 import { ResultModal } from "@/components/composite/ResultModal";
+import axios from "axios";
 
 const SUPPORTED_LANGUAGES = Object.keys(Language).map((key) =>
   key.toLowerCase()
@@ -64,7 +65,12 @@ export const PlayGround = () => {
             backgroundColor={"blue.300"}
             color={"white"}
             onClick={async () => {
-              //Todo: Add code to run the code
+              const res = await axios.post("/api/run", {
+                code: code,
+                language: codeLanguage,
+                input: input,
+              });
+              setOutput(res.data.output || res.data.error);
             }}
           >
             &#9654; Run
