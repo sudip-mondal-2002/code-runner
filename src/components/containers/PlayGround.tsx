@@ -1,7 +1,7 @@
 "use client";
 
 import Editor from "@uiw/react-textarea-code-editor";
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
 import {
   Box,
   Button,
@@ -23,11 +23,16 @@ const SUPPORTED_LANGUAGES = Object.keys(Language).map((key) =>
 
 export const PlayGround = () => {
   const [code, setCode] = React.useState("");
-  const [codeLanguage, setCodeLanguage] = React.useState<string>(
-    SUPPORTED_LANGUAGES[0]
-  );
+  const [codeLanguage, setCodeLanguage] = React.useState<string>();
   const [input, setInput] = React.useState<string>("");
   const [output, setOutput] = React.useState<string>("");
+  useEffect(() => {
+    if (!code) return;
+    localStorage.setItem("code", code);
+  }, [code]);
+  useEffect(() => {
+    setCode(localStorage.getItem("code") || "");
+  }, []);
 
   useEffect(() => {
     if (codeLanguage === "java") {
@@ -99,6 +104,20 @@ export const PlayGround = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
         ></Textarea>
+        <input
+          type="file"
+          accept=".txt"
+          onChange={(e) => {
+            if (!e.target.files) return;
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (!e.target) return;
+              setInput(e.target.result as string);
+            };
+            reader.readAsText(file);
+          }}
+        />
         <Heading>Output:</Heading>
         <Box border="1px solid #ddd" borderRadius="5px" padding="10px 15px">
           {output}
