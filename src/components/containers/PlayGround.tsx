@@ -23,7 +23,7 @@ const SUPPORTED_LANGUAGES = Object.keys(Language).map((key) =>
 
 export const PlayGround = () => {
   const [code, setCode] = React.useState("");
-  const [codeLanguage, setCodeLanguage] = React.useState<string>();
+  const [codeLanguage, setCodeLanguage] = React.useState<string>("python");
   const [input, setInput] = React.useState<string>("");
   const [output, setOutput] = React.useState<string>("");
   useEffect(() => {
