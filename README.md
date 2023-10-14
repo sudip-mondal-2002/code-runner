@@ -23,6 +23,12 @@ $ npm install
 $ npm run generate
 ```
 
+In case you want to generate some problems then run:
+
+```sh
+$ npx prisma db seed
+```
+
 
 3. **Run the Project**
 
